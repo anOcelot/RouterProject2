@@ -13,12 +13,9 @@ struct interface{
 	struct sockaddr *ifa_addr;
 };
 
+void buildResponse(struct interface *inter, struct ether_header *ether, struct ether_arp *arp);
 
-
-
-
-
-struct interface *eth0; 
+struct sockaddr eth0; 
 
 int main(){
   int packet_socket;
@@ -63,14 +60,17 @@ int main(){
 	  perror("bind");
 	}
 
-	struct interface *eth0 = (struct interface*)malloc(sizeof(eth0));	
-	eth0->ifa_addr = tmp->ifa_addr;
-	eth0->ifa_name = tmp->ifa_name;
+	//eth0 = (struct interface*) malloc(sizeof(struct interface));
+	//*eth0->ifa_addr = tmp->ifa_addr;
+	//eth0->ifa_name = tmp->ifa_name;
+
+
+
       }
     }
   }
   //free the interface list when we don't need it anymore
-  freeifaddrs(ifaddr);
+   freeifaddrs(ifaddr);
 
   //loop and recieve packets. We are only looking at one interface,
   //for the project you will probably want to look at more (to do so,
@@ -103,15 +103,30 @@ int main(){
     struct ether_header *etherH = (struct ether_header*)(buf);
     struct ether_arp *arpH = (struct ether_arp*)(buf);
     
-    printf("%lu\n", sizeof(struct ether_header));						    
+    printf("%lu\n", sizeof(struct ether_header));						   
+    
+   // buildResponse(eth0, etherH, arpH);
 
-    //printf("%u\n", ntohs(arpH->arp_sha));
-    //printf("%u\n", ntohs(arpH->arp_spa));
-    //printf("%u\n", ntohs(arpH->arp_tha));
-    //printf("%u\n", ntohs(arpH->arp_tpa));       
-        
-    struct ether_arp *arpResp;
+    printf("Mac: %x:%x:%x:%x:%x:%x\n", etherH->ether_shost[0], etherH->ether_shost[1],
+    	etherH->ether_shost[2], etherH->ether_shost[3], etherH->ether_shost[4], 
+	etherH->ether_shost[4], etherH->ether_shost[5]);
+	printf("%d\n", arpH->arp_op);
+    printf("type: %x\n", etherH->ether_type);
+    printf("hardware: %x\n", arpH->arp_hrd);
+    printf("protocol: %x\n", arpH->arp_pro);
+    printf("hlen: %x\n", arpH->arp_hln);
+    printf("plen: %x\n", arpH->arp_pln);
+    printf("arp op: %x\n", arpH->arp_op);
+    printf("sender hardware: %x\n", arpH->arp_sha);       
+    printf("sender protocol: %x\n", arpH->arp_spa);
 
+    struct ether_header *outEther = (struct ether_header*)malloc(sizeof(char)*14);      
+    struct ether_arp arpResp;
+
+    
+ 
+    	    
+ 	
     int i;
      //arpResp->arp_sha =
     //arpResp->arp_spa =
@@ -131,7 +146,12 @@ int main(){
   //exit
   return 0;
 }
+void buildResponse(struct interface *inter, struct ether_header *ether, struct ether_arp *arp){
 
+		printf("%s\n", inter->ifa_name);
+		printf("%d\n", inter->ifa_addr->sa_family);
+
+}
 
 
 
